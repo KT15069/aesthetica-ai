@@ -24,7 +24,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
+    
+    // Add smooth transition
+    document.documentElement.style.transition = 'background-color 0.4s ease, color 0.4s ease';
     document.documentElement.classList.toggle('light', newTheme === 'light');
+    
+    // Clean up transition after it completes
+    setTimeout(() => {
+      document.documentElement.style.transition = '';
+    }, 400);
   };
 
   return (

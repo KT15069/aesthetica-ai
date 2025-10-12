@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { User } from '@supabase/supabase-js';
 import type { Tables } from '@/integrations/supabase/types';
+import { motion } from 'framer-motion';
 
 type Generation = Tables<'generations'>;
 
@@ -69,21 +70,50 @@ export default function Generations() {
   return (
     <div className="p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2">My Generations</h1>
-        <p className="text-muted-foreground mb-8">
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-3xl font-bold mb-2"
+        >
+          My Generations
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="text-muted-foreground mb-8"
+        >
           All your AI-generated content in one place
-        </p>
+        </motion.p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {generations.length === 0 ? (
-            <div className="col-span-full text-center py-12">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="col-span-full text-center py-12"
+            >
               <p className="text-muted-foreground">
                 No generations yet. Start creating from the home page!
               </p>
-            </div>
+            </motion.div>
           ) : (
-            generations.map((gen) => (
-              <div key={gen.id} className="bg-card border border-border rounded-lg overflow-hidden hover-scale">
+            generations.map((gen, index) => (
+              <motion.div
+                key={gen.id}
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  duration: 0.5,
+                  delay: index * 0.1,
+                  type: 'spring',
+                  stiffness: 100,
+                }}
+                whileHover={{ scale: 1.05, y: -8 }}
+                className="bg-card border border-border rounded-lg overflow-hidden cursor-pointer transition-smooth"
+              >
                 <div className="aspect-video bg-muted flex items-center justify-center">
                   {gen.result_url ? (
                     gen.type === 'video' ? (
@@ -104,7 +134,7 @@ export default function Generations() {
                     </span>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))
           )}
         </div>
