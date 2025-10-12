@@ -9,7 +9,33 @@ import type { Tables } from '@/integrations/supabase/types';
 import { motion } from 'framer-motion';
 import { TypingIndicator } from '@/components/TypingIndicator';
 
+// Import default example media
+import example15 from '@/assets/example-15.mp4';
+import example64 from '@/assets/example-64.mp4';
+import example69 from '@/assets/example-69.mp4';
+import example75 from '@/assets/example-75.avif';
+import example81 from '@/assets/example-81.avif';
+import example109 from '@/assets/example-109.avif';
+import example111 from '@/assets/example-111.avif';
+
 type Generation = Tables<'generations'>;
+
+interface ExampleMedia {
+  id: string;
+  type: 'image' | 'video';
+  url: string;
+  prompt: string;
+}
+
+const defaultExamples: ExampleMedia[] = [
+  { id: 'ex-1', type: 'video', url: example15, prompt: 'Professional product showcase video' },
+  { id: 'ex-2', type: 'video', url: example64, prompt: 'Dynamic brand campaign visual' },
+  { id: 'ex-3', type: 'video', url: example69, prompt: 'Creative marketing content' },
+  { id: 'ex-4', type: 'image', url: example75, prompt: 'Stunning brand photography' },
+  { id: 'ex-5', type: 'image', url: example81, prompt: 'Modern product shot' },
+  { id: 'ex-6', type: 'image', url: example109, prompt: 'Professional lifestyle image' },
+  { id: 'ex-7', type: 'image', url: example111, prompt: 'High-quality brand visual' },
+];
 
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -143,52 +169,69 @@ export default function Dashboard() {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {generations.length === 0 ? (
+            {/* Show default examples first */}
+            {defaultExamples.map((example, index) => (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="col-span-full text-center py-12"
+                key={example.id}
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  duration: 0.5,
+                  delay: index * 0.1,
+                  type: 'spring',
+                  stiffness: 100,
+                }}
+                whileHover={{ scale: 1.05, y: -8 }}
+                className="bg-card border border-border rounded-lg overflow-hidden cursor-pointer transition-smooth"
               >
-                <p className="text-muted-foreground">
-                  No generations yet. Start by entering a prompt below!
-                </p>
+                <div className="aspect-video bg-muted flex items-center justify-center">
+                  {example.type === 'video' ? (
+                    <video src={example.url} controls className="w-full h-full object-cover" />
+                  ) : (
+                    <img src={example.url} alt={example.prompt} className="w-full h-full object-cover" />
+                  )}
+                </div>
+                <div className="p-4">
+                  <p className="text-sm text-muted-foreground line-clamp-2">{example.prompt}</p>
+                  <p className="text-xs text-muted-foreground mt-2">Example</p>
+                </div>
               </motion.div>
-            ) : (
-              generations.map((gen, index) => (
-                <motion.div
-                  key={gen.id}
-                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{
-                    duration: 0.5,
-                    delay: index * 0.1,
-                    type: 'spring',
-                    stiffness: 100,
-                  }}
-                  whileHover={{ scale: 1.05, y: -8 }}
-                  className="bg-card border border-border rounded-lg overflow-hidden cursor-pointer transition-smooth"
-                >
-                  <div className="aspect-video bg-muted flex items-center justify-center">
-                    {gen.result_url ? (
-                      gen.type === 'video' ? (
-                        <video src={gen.result_url} controls className="w-full h-full object-cover" />
-                      ) : (
-                        <img src={gen.result_url} alt={gen.prompt} className="w-full h-full object-cover" />
-                      )
+            ))}
+
+            {/* Show user generations */}
+            {generations.map((gen, index) => (
+              <motion.div
+                key={gen.id}
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  duration: 0.5,
+                  delay: (defaultExamples.length + index) * 0.1,
+                  type: 'spring',
+                  stiffness: 100,
+                }}
+                whileHover={{ scale: 1.05, y: -8 }}
+                className="bg-card border border-border rounded-lg overflow-hidden cursor-pointer transition-smooth"
+              >
+                <div className="aspect-video bg-muted flex items-center justify-center">
+                  {gen.result_url ? (
+                    gen.type === 'video' ? (
+                      <video src={gen.result_url} controls className="w-full h-full object-cover" />
                     ) : (
-                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <p className="text-sm text-muted-foreground line-clamp-2">{gen.prompt}</p>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      {new Date(gen.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </motion.div>
-              ))
-            )}
+                      <img src={gen.result_url} alt={gen.prompt} className="w-full h-full object-cover" />
+                    )
+                  ) : (
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  )}
+                </div>
+                <div className="p-4">
+                  <p className="text-sm text-muted-foreground line-clamp-2">{gen.prompt}</p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {new Date(gen.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </div>
